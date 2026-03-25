@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#cba6f7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="ทะเบียนวิสัญญี" />
+  <title>ทะเบียนวิสัญญี Dashboard</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <style>
+    :root {
+      --bg: #f6f2ff;
+      --panel: #ffffff;
+      --panel-soft: #fbf8ff;
+      --ink: #4b3868;
+      --muted: #7d6b98;
+      --accent: #cba6f7;
+      --accent-deep: #8f62cc;
+      --accent-soft: #efe6ff;
+      --border: #e7d9ff;
+      --ok: #1f9d6a;
+      --warn: #d97706;
+      --shadow: 0 14px 40px rgba(118, 80, 170, 0.12);
+      --radius: 20px;
+      --app-url: "https://script.google.com/macros/s/AKfycbwGaEc4JQme3zKaWQe3bfQ_X3fqB0POPao6HIylAbztry5fHtWPiS3-cmZZMG51uztQ/exec";
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Thai', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(203,166,247,.42), transparent 28%),
+        linear-gradient(180deg, #f7f2ff 0%, #f3effc 100%);
+    }
+    .app {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 18px;
+      padding: 18px;
+    }
+    .sidebar, .main-shell {
+      background: rgba(255,255,255,.82);
+      border: 1px solid rgba(231,217,255,.95);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .sidebar {
+      border-radius: 28px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 8px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(239,230,255,.9), rgba(255,255,255,.95));
+      border: 1px solid var(--border);
+    }
+    .brand img {
+      width: 58px; height: 58px; border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(143,98,204,.18);
+    }
+    .brand h1 { margin: 0; font-size: 24px; line-height: 1.05; }
+    .brand p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px;
+    }
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px;
+    }
+    .metric .label { font-size: 12px; color: var(--muted); }
+    .metric .value { margin-top: 4px; font-size: 18px; font-weight: 800; }
+    .list { display: grid; gap: 10px; }
+    .list-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(245,240,255,.95), rgba(255,255,255,.95));
+      border: 1px solid var(--border);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      width: fit-content;
+    }
+    .status-badge.online { color: var(--ok); }
+    .status-badge.offline { color: var(--warn); }
+    .main-shell {
+      border-radius: 32px;
+      padding: 16px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 14px;
+      min-width: 0;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 6px 6px 0;
+    }
+    .header h2 { margin: 0; font-size: 28px; }
+    .header p { margin: 6px 0 0; color: var(--muted); }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 16px;
+      padding: 12px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(180deg, #a764ff, #8b53e6);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(143,98,204,.24);
+      text-decoration: none;
+    }
+    .btn.secondary {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .notice-row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 12px;
+    }
+    .notice {
+      background: linear-gradient(180deg, rgba(239,230,255,.92), rgba(255,255,255,.98));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      min-width: 0;
+    }
+    .notice strong { display: block; margin-bottom: 6px; }
+    .frame-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 560px;
+      border-radius: 26px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.6);
+    }
+    iframe {
+      width: 100%;
+      height: calc(100dvh - 240px);
+      min-height: 560px;
+      border: 0;
+      background: #fff;
+      display: block;
+    }
+    .loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, rgba(246,242,255,.98), rgba(255,255,255,.92));
+      z-index: 2;
+      transition: opacity .35s ease, visibility .35s ease;
+    }
+    .loading.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loading-card {
+      width: min(440px, 92%);
+      text-align: center;
+      padding: 28px;
+      border-radius: 24px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .loading-card img {
+      width: 82px; height: 82px; border-radius: 24px; margin-bottom: 14px;
+      box-shadow: 0 12px 24px rgba(143,98,204,.20);
+    }
+    .spinner {
+      width: 42px; height: 42px; margin: 14px auto 0;
+      border-radius: 50%;
+      border: 4px solid rgba(203,166,247,.34);
+      border-top-color: var(--accent-deep);
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .frame-fallback {
+      display: none;
+      position: absolute;
+      inset: 0;
+      padding: 24px;
+      background: linear-gradient(180deg, #faf7ff, #ffffff);
+      z-index: 3;
+      overflow: auto;
+    }
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 6px 6px;
+      color: var(--muted);
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    @media (max-width: 1180px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { order: 2; }
+      .main-shell { order: 1; }
+      .notice-row { grid-template-columns: 1fr; }
+      iframe { height: 72vh; }
+    }
+    @media (max-width: 760px) {
+      .app { padding: 10px; gap: 10px; }
+      .sidebar { display: none; }
+      .main-shell { border-radius: 22px; padding: 12px; }
+      .header { flex-direction: column; align-items: flex-start; }
+      .header h2 { font-size: 22px; }
+      .actions { width: 100%; justify-content: flex-start; }
+      .frame-card { min-height: 75vh; }
+      iframe { min-height: 75vh; height: 75vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="icon-192.png" alt="ทะเบียนวิสัญญี" />
+        <div>
+          <h1>ทะเบียนวิสัญญี</h1>
+          <p>Anesthesia Registry Dashboard</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">สถานะระบบ</h3>
+        <div id="networkBadge" class="status-badge">กำลังตรวจสอบ…</div>
+        <div class="metric-grid" style="margin-top:12px;">
+          <div class="metric">
+            <div class="label">แหล่งข้อมูล</div>
+            <div class="value">Apps Script</div>
+          </div>
+          <div class="metric">
+            <div class="label">โหมดคอม</div>
+            <div class="value">Dashboard</div>
+          </div>
+          <div class="metric">
+            <div class="label">อัปเดตล่าสุด</div>
+            <div class="value" id="lastSyncSide">-</div>
+          </div>
+          <div class="metric">
+            <div class="label">Offline cache</div>
+            <div class="value">พร้อมใช้งาน</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">วิธีใช้งานแนะนำ</h3>
+        <div class="list">
+          <div class="list-item">คอม: ใช้หน้านี้เพื่อเปิดเร็วขึ้น และดูข้อมูลล่าสุดได้เมื่อเน็ตสะดุด</div>
+          <div class="list-item">มือถือ: ใช้ลิงก์ Apps Script เดิมโดยตรง เพื่อให้หน้าจอเหมือนต้นฉบับ</div>
+          <div class="list-item">ถ้าแก้โค้ดฝั่ง Apps Script แล้ว ให้กดรีโหลด 1 ครั้งเพื่อดึงเวอร์ชันใหม่</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">ปุ่มลัด</h3>
+        <div class="list">
+          <a class="btn" id="openDirectSide" target="_blank" rel="noopener">เปิดลิงก์ตรง</a>
+          <button class="btn secondary" id="reloadSide" type="button">รีโหลดข้อมูล</button>
+          <button class="btn secondary" id="clearCacheSide" type="button">ล้าง cache</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-shell">
+      <section class="header">
+        <div>
+          <h2>Desktop Dashboard</h2>
+          <p>เวอร์ชันสำหรับคอม: โหลดนุ่มขึ้น เก็บข้อมูลล่าสุดไว้ดูได้ และยังชี้ไปฐานข้อมูลเดิมของคุณ</p>
+        </div>
+        <div class="actions">
+          <button class="btn secondary" id="reloadMain" type="button">รีโหลด</button>
+          <a class="btn" id="openDirectMain" target="_blank" rel="noopener">เปิด Apps Script ตรง</a>
+        </div>
+      </section>
+
+      <section class="notice-row">
+        <div class="notice">
+          <strong>Offline mode คืออะไร</strong>
+          ถ้าเคยเปิดแอปนี้บนคอมแล้ว ครั้งถัดไปแม้เน็ตหลุดชั่วคราว ระบบจะพยายามแสดงหน้าเวอร์ชันล่าสุดที่เคยโหลดสำเร็จไว้ก่อน
+        </div>
+        <div class="notice">
+          <strong>Loading smooth</strong>
+          มีหน้ารอโหลดพร้อมโลโก้ และจะซ่อนเมื่อหน้า Apps Script โหลดเสร็จ ลดความรู้สึกว่าหน้ากระตุกหรือขาวนาน
+        </div>
+        <div class="notice">
+          <strong>ใช้งานร่วมกับมือถือ</strong>
+          มือถือยังใช้ลิงก์เดิมได้ตามปกติ ข้อมูลไปที่ Google Sheet เดียวกัน ไม่มีผลต่อการคีย์ข้อมูล
+        </div>
+      </section>
+
+      <section class="frame-card">
+        <div class="loading" id="loadingOverlay">
+          <div class="loading-card">
+            <img src="icon-192.png" alt="โลโก้" />
+            <h3 style="margin:0; font-size:26px;">ทะเบียนวิสัญญี</h3>
+            <p style="margin:8px 0 0; color:var(--muted);">กำลังโหลด dashboard และตรวจสอบ cache ล่าสุด</p>
+            <div class="spinner"></div>
+          </div>
+        </div>
+
+        <iframe id="appFrame" title="ทะเบียนวิสัญญี" loading="eager" referrerpolicy="no-referrer"></iframe>
+
+        <div class="frame-fallback" id="fallback">
+          <div class="card" style="max-width:780px; margin: 0 auto;">
+            <h3 style="margin-top:0;">เปิดแบบฝังหน้าไม่สำเร็จ</h3>
+            <p>ปกติมักเกิดจาก Web App ฝั่ง Apps Script ยังไม่อนุญาตให้แสดงใน iframe หรือเน็ตไม่พร้อม</p>
+            <p>ถ้าต้องการให้ฝังได้ ให้ตรวจสอบว่าใน <span class="mono">doGet(e)</span> มีบรรทัดนี้:</p>
+            <p class="mono">.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)</p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+              <a class="btn" id="fallbackOpenDirect" target="_blank" rel="noopener">เปิดลิงก์ตรง</a>
+              <button class="btn secondary" id="fallbackRetry" type="button">ลองใหม่</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer">
+        <div>สถานะตอนนี้: <strong id="footerStatus">กำลังเริ่มต้น</strong></div>
+        <div>อัปเดตล่าสุดจาก cache: <span id="lastSyncFooter">-</span></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const APP_URL = 'https://script.google.com/macros/s/AKfycbwGaEc4JQme3zKaWQe3bfQ_X3fqB0POPao6HIylAbztry5fHtWPiS3-cmZZMG51uztQ/exec';
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const frame = document.getElementById('appFrame');
+    const fallback = document.getElementById('fallback');
+    const networkBadge = document.getElementById('networkBadge');
+    const lastSyncSide = document.getElementById('lastSyncSide');
+    const lastSyncFooter = document.getElementById('lastSyncFooter');
+    const footerStatus = document.getElementById('footerStatus');
+
+    function formatTS(ts) {
+      if (!ts) return '-';
+      try {
+        return new Date(Number(ts)).toLocaleString('th-TH');
+      } catch (_) {
+        return '-';
+      }
+    }
+
+    function updateLastSync(ts) {
+      const text = formatTS(ts);
+      lastSyncSide.textContent = text;
+      lastSyncFooter.textContent = text;
+    }
+
+    function updateNetworkBadge() {
+      const online = navigator.onLine;
+      networkBadge.textContent = online ? 'ออนไลน์' : 'ออฟไลน์';
+      networkBadge.className = 'status-badge ' + (online ? 'online' : 'offline');
+      footerStatus.textContent = online ? 'ออนไลน์' : 'ออฟไลน์ - จะแสดงข้อมูลล่าสุดที่ cache ได้';
+    }
+
+    function hideLoader() {
+      loadingOverlay.classList.add('hidden');
+    }
+
+    function showLoader(message) {
+      loadingOverlay.classList.remove('hidden');
+      if (message) {
+        const p = loadingOverlay.querySelector('p');
+        if (p) p.textContent = message;
+      }
+    }
+
+    function loadFrame(force = false) {
+      fallback.style.display = 'none';
+      frame.style.display = 'block';
+      showLoader(force ? 'กำลังรีโหลดข้อมูลล่าสุดจากระบบ' : 'กำลังโหลด dashboard และตรวจสอบ cache ล่าสุด');
+      const stamp = force ? ('?t=' + Date.now()) : '';
+      frame.src = APP_URL + stamp;
+    }
+
+    function setDirectLinks() {
+      ['openDirectSide','openDirectMain','fallbackOpenDirect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.href = APP_URL;
+      });
+    }
+
+    async function readMeta() {
+      if (!('serviceWorker' in navigator)) return;
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const channel = new MessageChannel();
+        const response = await new Promise(resolve => {
+          channel.port1.onmessage = event => resolve(event.data || {});
+          reg.active?.postMessage({ type: 'GET_META' }, [channel.port2]);
+          setTimeout(() => resolve({}), 1200);
+        });
+        updateLastSync(response.lastSuccessfulFetch || localStorage.getItem('lastSuccessfulFetch'));
+      } catch (_) {
+        updateLastSync(localStorage.getItem('lastSuccessfulFetch'));
+      }
+    }
+
+    async function clearCache() {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(key => caches.delete(key)));
+      }
+      localStorage.removeItem('lastSuccessfulFetch');
+      updateLastSync(null);
+      alert('ล้าง cache แล้ว');
+    }
+
+    frame.addEventListener('load', () => {
+      hideLoader();
+      const now = Date.now();
+      localStorage.setItem('lastSuccessfulFetch', String(now));
+      updateLastSync(now);
+      footerStatus.textContent = navigator.onLine ? 'โหลดข้อมูลสำเร็จ' : 'แสดงข้อมูลจาก cache';
+    });
+
+    let fallbackTimer = null;
+    function armFallbackTimer() {
+      clearTimeout(fallbackTimer);
+      fallbackTimer = setTimeout(() => {
+        if (!navigator.onLine) {
+          footerStatus.textContent = 'ออฟไลน์ - ถ้าเคยเปิดหน้าแล้ว ระบบจะใช้ข้อมูลล่าสุดที่ cache ไว้';
+          hideLoader();
+          return;
+        }
+        fallback.style.display = 'block';
+        frame.style.display = 'none';
+        hideLoader();
+        footerStatus.textContent = 'โหลดแบบฝังหน้าไม่สำเร็จ';
+      }, 8500);
+    }
+
+    document.getElementById('reloadMain').addEventListener('click', () => { loadFrame(true); armFallbackTimer(); });
+    document.getElementById('reloadSide').addEventListener('click', () => { loadFrame(true); armFallbackTimer(); });
+    document.getElementById('fallbackRetry').addEventListener('click', () => { loadFrame(true); armFallbackTimer(); });
+    document.getElementById('clearCacheSide').addEventListener('click', clearCache);
+
+    window.addEventListener('online', updateNetworkBadge);
+    window.addEventListener('offline', updateNetworkBadge);
+
+    updateNetworkBadge();
+    setDirectLinks();
+    updateLastSync(localStorage.getItem('lastSuccessfulFetch'));
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', async () => {
+        try {
+          await navigator.serviceWorker.register('./sw.js');
+        } catch (_) {}
+        await readMeta();
+      });
+    }
+
+    loadFrame(false);
+    armFallbackTimer();
+  </script>
+</body>
+</html>
